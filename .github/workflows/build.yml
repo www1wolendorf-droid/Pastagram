@@ -13,15 +13,16 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
       - run: |
-          mkdir -p TMessagesProj/config
+          mkdir -p TMessagesProj/config TMessagesProj_App TMessagesProj_AppHockeyApp
           rm -f TMessagesProj/config/release.keystore
           keytool -genkey -v -keystore TMessagesProj/config/release.keystore -alias pastagram -keyalg RSA -keysize 2048 -validity 10000 -storepass 123456 -keypass 123456 -dname "CN=Pastagram"
           echo "RELEASE_STORE_PASSWORD=123456" >> gradle.properties
           echo "RELEASE_KEY_ALIAS=pastagram" >> gradle.properties
           echo "RELEASE_KEY_PASSWORD=123456" >> gradle.properties
-          echo '{"project_info":{"project_number":"123456789000","project_id":"pastagram-app"},"client":[{"client_info":{"mobilesdk_app_id":"1:123456789000:android:0000000000000000","android_client_info":{"package_name":"com.pastagram.messenger.beta"}},"api_key":[{"current_key":"AIzaSyDummyKeyForBuildOnly000000000"}]}]}' > TMessagesProj_App/google-services.json
+          echo '{"project_info":{"project_number":"123456789000","project_id":"pastagram-app"},"client":[{"client_info":{"mobilesdk_app_id":"1:123456789000:android:0000000000000000","android_client_info":{"package_name":"com.pastagram.messenger"}},"api_key":[{"current_key":"AIzaSyDummyKeyForBuildOnly000000000"}]},{"client_info":{"mobilesdk_app_id":"1:123456789000:android:0000000000000001","android_client_info":{"package_name":"com.pastagram.messenger.beta"}},"api_key":[{"current_key":"AIzaSyDummyKeyForBuildOnly000000000"}]}]}' > TMessagesProj_App/google-services.json
+          cp TMessagesProj_App/google-services.json TMessagesProj_AppHockeyApp/google-services.json
           chmod +x gradlew
-          ./gradlew assembleAfatDebug
+          ./gradlew :TMessagesProj_App:assembleAfatDebug
       - uses: actions/upload-artifact@v4
         with:
           name: Pastagram-APK
