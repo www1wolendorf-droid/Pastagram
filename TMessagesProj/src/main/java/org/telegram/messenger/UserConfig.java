@@ -572,13 +572,17 @@ public class UserConfig extends BaseController {
         }
     }
 
-    public boolean isPremium() {
-        TLRPC.User user = currentUser;
-        if (user == null) {
+        public boolean isPremium() {
+        if (currentUser == null) {
             return false;
         }
-        return user.premium;
+        PastagramConfig.loadConfig();
+        if (PastagramConfig.localPremium) {
+            return true;
+        }
+        return currentUser.premium;
     }
+
 
     public Long getEmojiStatus() {
         return UserObject.getEmojiStatusDocumentId(currentUser);
