@@ -1,1 +1,30 @@
-
+name: Build Pastagram APK
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - run: |
+          mkdir -p TMessagesProj/config
+          keytool -genkey -v -keystore TMessagesProj/config/release.keystore -alias pastagram -keyalg RSA -keysize 2048 -validity 10000 -storepass 123456 -keypass 123456 -dname "CN=Pastagram"
+          echo "RELEASE_STORE_PASSWORD=123456" >> gradle.properties
+          echo "RELEASE_KEY_ALIAS=pastagram" >> gradle.properties
+          echo "RELEASE_KEY_PASSWORD=123456" >> gradle.properties
+          cat << 'EOF' > TMessagesProj_App/google-services.json
+          {"project_info":{"project_number":"123456789000","project_id":"pastagram-app"},"client":[{"client_info":{"mobilesdk_app_id":"1:123456789000:android:0000000000000000","android_client_info":{"package_name":"com.pastagram.messenger.beta"}},"api_key":[{"current_key":"AIzaSyDummyKeyForBuildOnly000000000"}]}]}
+          EOF
+          chmod +x gradlew
+          ./gradlew assembleAfatDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Pastagram-APK
+          path: TMessagesProj_App/build/outputs/apk/afat/debug/*.apk
+          
